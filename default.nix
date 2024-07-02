@@ -13,14 +13,30 @@ let
 
 in {
   options.services.simple-git-server = with lib; {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
+    enable = mkEnableOption "services.simple-git-server";
+
+    git_home = mkOption {
+      type = types.path;
+      default = "/home/git";
+      example = ''"/data/git"'';
+      description = ''
+        Path to the directory containing the Git repositories.
+      '';
     };
 
-    git_home = mkOption { type = types.path; };
-    git_public_key = mkOption { type = types.str; };
-    admin_public_key = mkOption { type = types.str; };
+    git_public_key = mkOption {
+      type = types.listOf types.str;
+      description = ''
+        Authorized keys for accessing the Git repositories.
+      '';
+    };
+
+    admin_public_key = mkOption {
+      type = types.listOf types.str;
+      description = ''
+        Authorized keys for administrating the Git repositories.
+      '';
+    };
 
   };
 
@@ -32,7 +48,7 @@ in {
       home = conf.git_home;
       createHome = false; # 'createHome' resets the permissions on reboot
       group = "git";
-      openssh.authorizedKeys.keys = [ conf.git_public_key ];
+      openssh.authorizedKeys.keys = conf.git_public_key;
       packages = [ pkgs.git ];
       shell = "${pkgs.git}/bin/git-shell";
     };
@@ -40,7 +56,7 @@ in {
     users.users.git-admin = {
       isNormalUser = true;
       group = "git";
-      openssh.authorizedKeys.keys = [ conf.admin_public_key ];
+      openssh.authorizedKeys.keys = conf.admin_public_key;
       packages = [ pkgs.git git_admin_tools ];
     };
 

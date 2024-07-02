@@ -34,8 +34,8 @@ in {
   services.simple-git-server = {
     enable = true;
     git_home = "/var/data/git";
-    git_public_key = pub_key;
-    admin_public_key = pub_key;
+    git_public_key = [ pub_key ];
+    admin_public_key = [ pub_key ];
   };
 }
 ```
