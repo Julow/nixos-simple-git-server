@@ -29,8 +29,9 @@ in {
 
     users.users.git = {
       isNormalUser = true;
-      group = "users";
       home = conf.git_home;
+      createHome = false; # 'createHome' resets the permissions on reboot
+      group = "git";
       openssh.authorizedKeys.keys = [ conf.git_public_key ];
       packages = [ pkgs.git ];
       shell = "${pkgs.git}/bin/git-shell";
@@ -38,9 +39,18 @@ in {
 
     users.users.git-admin = {
       isNormalUser = true;
+      group = "git";
       openssh.authorizedKeys.keys = [ conf.admin_public_key ];
       packages = [ pkgs.git git_admin_tools ];
     };
 
+    system.activationScripts.git.text = ''
+      data=${lib.escapeShellArg conf.git_home}
+      mkdir -p "$data"
+      chown git:git "$data"
+      chmod 770 "$data"
+      chmod g+s "$data"
+      ${pkgs.acl}/bin/setfacl -m "default:group::rwx" "$data"
+    '';
   };
 }
