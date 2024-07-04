@@ -68,5 +68,10 @@ in {
       chmod g+s "$data"
       ${pkgs.acl}/bin/setfacl -m "default:group::rwx" "$data"
     '';
+
+    environment.etc."gitconfig".text = ''
+      [safe]
+        directory = "~/*"
+    '';
   };
 }
